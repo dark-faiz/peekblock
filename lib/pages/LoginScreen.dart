@@ -70,7 +70,9 @@ class LoginScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ScanScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const CameraScannerScreen(),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
@@ -95,7 +97,7 @@ class LoginScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ScanScreen(),
+                    builder: (context) => const CameraScannerScreen(),
                   ), // Allow guest to access scanner
                 );
               },

@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.13.6  # ✅ For ESP Wi-Fi communication
+  http: ^0.13.4  # For ESP API calls
   lottie: ^2.7.0  # ✅ For animations
   shared_preferences: ^2.2.2  # ✅ For local storage
   intl: ^0.20.2  # ✅ For date/time formatting
@@ -57,6 +57,9 @@ dev_dependencies:
 flutter:
   assets:
      - lib/assets/logo/logo.png
+     - lib/assets/animations/scan_animation.json
+     - lib/assets/animations/success_animation.json
+     - lib/assets/animations/failed_animation.json
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
