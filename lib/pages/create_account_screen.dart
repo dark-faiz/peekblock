@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // For date formatting
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // ✅ For local storage
+import 'LoginScreen.dart';
 
 class CreateProfileScreen extends StatefulWidget {
   const CreateProfileScreen({super.key});
@@ -15,7 +19,12 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore =
+      FirebaseFirestore.instance; // ✅ Firestore instance
 
+  // ✅ Select Date Function
   Future<void> _selectDate(BuildContext context) async {
     DateTime? picked = await showDatePicker(
       context: context,
@@ -30,7 +39,10 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     }
   }
 
-  void _saveProfile() {
+  // ✅ Create Account Function
+  Future<void> _createAccount() async {
+    setState(() => _isLoading = true);
+
     String name = _nameController.text.trim();
     String email = _emailController.text.trim();
     String dob = _dobController.text.trim();
@@ -42,18 +54,62 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
         dob.isEmpty ||
         phone.isEmpty ||
         password.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
+      _showError("Please fill all fields");
+      setState(() => _isLoading = false);
       return;
     }
 
-    // Save profile data (e.g., send to Firebase or local storage)
-    print(
-      "Profile Saved: Name = $name, Email = $email, DOB = $dob, Phone = $phone, Password = $password",
-    );
+    try {
+      // ✅ Register user with Firebase Auth
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
 
-    // Navigate to next screen (if needed)
+      User? user = userCredential.user;
+      if (user != null) {
+        // ✅ Save user details to Firestore
+        await _firestore.collection("users").doc(user.uid).set({
+          "uid": user.uid,
+          "name": name,
+          "email": email,
+          "dob": dob,
+          "phone": phone,
+          "createdAt": FieldValue.serverTimestamp(),
+        });
+
+        // ✅ Save user details locally using SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('name', name);
+        await prefs.setString('email', email);
+        await prefs.setString('dob', dob);
+        await prefs.setString('phone', phone);
+        await prefs.setBool('isLoggedIn', true);
+
+        // ✅ Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Account Created Successfully!")),
+        );
+
+        // ✅ Navigate to Login Screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
+    } catch (e) {
+      _showError("Error: ${e.toString()}");
+    }
+
+    setState(() => _isLoading = false);
+  }
+
+  // ✅ Show Error Messages
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   @override
@@ -120,11 +176,13 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _saveProfile,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
-              child: const Text("Save Profile"),
-            ),
+            _isLoading
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                  onPressed: _createAccount,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+                  child: const Text("Create Account"),
+                ),
           ],
         ),
       ),

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "983602238281",
+    "project_id": "peekblocknew",
+    "storage_bucket": "peekblocknew.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:983602238281:android:019dce845956fbb4870098",
+        "android_client_info": {
+          "package_name": "com.example.peekblock_new"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8G7iXaqAo6U_n1bwOW-qDfmS06pN-l-U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

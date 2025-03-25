@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'pages/LoginScreen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:peekblock/pages/LoginScreen.dart'; // Ensure this is the correct path
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // ✅ Initialize Firebase
+
   runApp(
-    const MaterialApp(
-      home: LoginScreen(), // Starting screen
-    ),
+    const MaterialApp(home: LoginScreen(), debugShowCheckedModeBanner: false),
   );
 }
