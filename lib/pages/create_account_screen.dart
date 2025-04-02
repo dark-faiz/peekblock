@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // ✅ For local storage
+import 'package:shared_preferences/shared_preferences.dart';
 import 'LoginScreen.dart';
 
 class CreateProfileScreen extends StatefulWidget {
@@ -21,8 +21,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   bool _obscurePassword = true;
   bool _isLoading = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore =
-      FirebaseFirestore.instance; // ✅ Firestore instance
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // ✅ Select Date Function
   Future<void> _selectDate(BuildContext context) async {
@@ -84,22 +83,41 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
         await prefs.setString('phone', phone);
         await prefs.setBool('isLoggedIn', true);
 
-        // ✅ Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Account Created Successfully!")),
-        );
+        setState(() => _isLoading = false);
 
-        // ✅ Navigate to Login Screen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
+        // ✅ Show Success Popup and Navigate to Login
+        _showSuccessDialog();
       }
     } catch (e) {
       _showError("Error: ${e.toString()}");
+      setState(() => _isLoading = false);
     }
+  }
 
-    setState(() => _isLoading = false);
+  // ✅ Show Success Popup and Navigate Back to Login
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text("Success"),
+            content: const Text("Account Created Successfully!"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close the dialog
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+    );
   }
 
   // ✅ Show Error Messages
